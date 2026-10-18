@@ -26,7 +26,7 @@ For access from outside your home network, use [Tailscale](https://tailscale.com
 - **Claude Code** with [Remote Control](https://code.claude.com/docs/en/remote-control), always on and restarted automatically
 - **Codex CLI, GitHub CLI, Cloudflare Wrangler, Google Cloud CLI, Firebase CLI** (Firebase MCP server optional), each optional
 - **Headless Chromium** for screenshots and browser tests
-- **tmux** with a simple menu, so nothing stops when you disconnect
+- **tmux** with a simple menu, so nothing stops when you disconnect; windows and Claude conversations come back after a restart or update
 - **Key-only SSH** on port 2222
 
 The container runs as a normal user, with a read-only system, no extra privileges and no access to the Docker socket. All your data lives in one folder.

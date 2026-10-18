@@ -169,6 +169,7 @@ The same as commands:
 - `Ctrl-b d` detaches without stopping anything.
 - To stop the menu from opening on login: `touch ~/.no-menu`.
 - **Several terminals at once:** every SSH connection (for example every Termius tab) gets its own view. Windows are shared, but each terminal keeps its own active window, so one does not switch the other. Two terminals can also show the same window. A view is removed when its terminal disconnects. This applies when you connect through `menu`, `new` or `attach`; a manual `tmux attach` still joins the shared session.
+- **Windows survive restarts and rebuilds:** every 30 seconds the window list (name, folder, whether Claude runs in it) is saved to `DATA_DIR/.home/.local/state/nas-agent/tmux-windows.tsv`. When the container starts again, the windows are recreated in the same folders, and windows that ran Claude start `claude --continue` (with `--remote-control` if it was on), so the last conversation continues. Other running programs (dev servers, Codex) are not restarted, and an unfinished Claude reply is not resumed. Turn it off with `TMUX_RESTORE=false` in `.env`.
 - **Same Claude session in the terminal and the app:** in a window, run `claude --remote-control "myrepo"`. The session is interactive in the terminal and also appears in the Claude app.
 
 ## Day-to-day
@@ -178,7 +179,7 @@ The same as commands:
 | Open a terminal | SSH in and pick a window from the menu |
 | Update agents and tools | `install-agents.sh` (Claude Code also updates itself) |
 | Restart Remote Control | `Ctrl-c` in the `claude-server` window, or `docker restart nas-agent` on the NAS |
-| Update the image (gh, Node, system packages) | On the NAS: `git pull`, then `docker compose up -d --build` |
+| Update the image (gh, Node, system packages) | On the NAS: `git pull`, then `docker compose up -d --build` (open windows are recreated, running programs restart) |
 | Logs | On the NAS: `docker logs nas-agent` |
 
 Logins, agents and projects live in `DATA_DIR`, so nothing is lost when the container is recreated.

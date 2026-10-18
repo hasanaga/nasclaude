@@ -80,5 +80,11 @@ tmux new-session -d -s main -n claude-server -c "$WORKSPACE" "install-agents.sh 
 tmux new-window -d -t main -n terminal -c "$WORKSPACE"
 
 log "tmux session 'main' started (windows: claude-server, terminal)"
+
+# --- Restore the windows saved before the last restart/rebuild, then keep saving them
+if [[ "${TMUX_RESTORE:-true}" == "true" ]]; then
+  tmux-state.sh restore || log "WARNING: could not restore tmux windows"
+  tmux-state.sh loop >/dev/null 2>&1 &
+fi
 log "Starting sshd on port 2222 (key-only)"
 exec /usr/sbin/sshd -D -e -f /etc/nas-agent/sshd_config
