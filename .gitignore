@@ -1,0 +1,10 @@
+.DS_Store
+
+# Local configuration and data (never commit)
+.env
+.env.*
+!.env.example
+data/
+
+# Legacy layout folder (kept out of git and the build context)
+nas-agent/

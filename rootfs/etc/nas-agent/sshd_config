@@ -1,0 +1,35 @@
+# sshd runs unprivileged as the agent user: only that user can log in, keys only.
+Port 2222
+ListenAddress 0.0.0.0
+HostKey /data/.home/.ssh-host/ssh_host_ed25519_key
+PidFile /tmp/sshd.pid
+
+AuthorizedKeysFile /data/.home/.ssh/authorized_keys
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+PermitRootLogin no
+UsePAM no
+StrictModes yes
+MaxAuthTries 3
+LoginGraceTime 30
+
+# Allow local port forwarding (useful to preview dev servers); nothing else.
+AllowTcpForwarding local
+AllowAgentForwarding no
+AllowStreamLocalForwarding no
+X11Forwarding no
+PermitTunnel no
+GatewayPorts no
+PermitUserEnvironment no
+
+# PATH for non-interactive commands (ssh host 'cmd'); login shells also get it from /etc/profile.d
+SetEnv PATH=/data/.home/.local/bin:/data/.home/.npm-global/bin:/data/.home/.local/google-cloud-sdk/bin:/usr/local/bin:/usr/bin:/bin HOME=/data/.home LANG=C.UTF-8
+
+ClientAliveInterval 30
+ClientAliveCountMax 4
+PrintMotd no
+Banner none
+
+Subsystem sftp internal-sftp

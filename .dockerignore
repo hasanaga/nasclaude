@@ -1,0 +1,8 @@
+.git
+.DS_Store
+.env
+.env.*
+data/
+nas-agent/
+README.md
+LICENSE
