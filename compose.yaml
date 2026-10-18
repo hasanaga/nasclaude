@@ -25,6 +25,7 @@ services:
       INSTALL_WRANGLER: ${INSTALL_WRANGLER:-true}
       INSTALL_GCLOUD: ${INSTALL_GCLOUD:-true}
       INSTALL_FIREBASE: ${INSTALL_FIREBASE:-true}
+      FIREBASE_MCP: ${FIREBASE_MCP:-false}
     ports:
       - "${SSH_BIND_IP:-0.0.0.0}:${SSH_PORT:-2222}:2222"
     volumes:

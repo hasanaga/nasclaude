@@ -4,7 +4,7 @@ A Docker setup that runs AI coding agents on a home NAS and lets you drive them 
 
 **What's in the container:**
 - **Claude Code** in official Remote Control server mode: open and steer sessions from the Claude mobile app or claude.ai/code.
-- **Codex CLI**, **GitHub CLI (`gh`)**, **Cloudflare Wrangler**, **Google Cloud CLI (`gcloud`)** and **Firebase CLI** (with the Firebase MCP server registered in Claude Code).
+- **Codex CLI**, **GitHub CLI (`gh`)**, **Cloudflare Wrangler**, **Google Cloud CLI (`gcloud`)** and **Firebase CLI** (the Firebase MCP server can be registered in Claude Code with `FIREBASE_MCP=true`).
 - **Headless Chromium** (Debian package with all libraries and fonts) for screenshots and browser tests, for example `playwright-core` with `executablePath: process.env.CHROME_PATH`. No browser download needed.
 - **tmux**: everything keeps running in the background when you disconnect.
 - **SSH**: key-only, port 2222. Full terminal from Termius, Blink or any SSH client.
@@ -101,7 +101,7 @@ A **menu** opens on connect. Then:
    - **Cloudflare Wrangler:**
      - **API token (easiest in a container):** create a token with the minimum permissions and add `export CLOUDFLARE_API_TOKEN=...` to `~/.bashrc`. Do not put the token in `.env` or git.
      - **`wrangler login`:** the browser login redirects to `localhost:8976`, so connect with port forwarding (`ssh -L 8976:localhost:8976 -p 2222 agent@<NAS-IP>`) and then run `wrangler login`.
-   - **Google Cloud and Firebase** (the Firebase MCP server is already registered; check with `claude mcp list`):
+   - **Google Cloud and Firebase.** The Firebase MCP server is off by default. To register it in Claude Code, set `FIREBASE_MCP=true` in `.env` and recreate the container (`docker compose up -d`), or add it by hand with `claude mcp add --scope user firebase -- firebase mcp`. Remove it again with `claude mcp remove --scope user firebase`. Logins:
      - With your own account, without a local browser:
        ```bash
        gcloud auth login --no-launch-browser

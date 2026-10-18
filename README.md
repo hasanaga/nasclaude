@@ -24,7 +24,7 @@ For access from outside your home network, use [Tailscale](https://tailscale.com
 ## What's inside
 
 - **Claude Code** with [Remote Control](https://code.claude.com/docs/en/remote-control), always on and restarted automatically
-- **Codex CLI, GitHub CLI, Cloudflare Wrangler, Google Cloud CLI, Firebase CLI** (with the Firebase MCP server), each optional
+- **Codex CLI, GitHub CLI, Cloudflare Wrangler, Google Cloud CLI, Firebase CLI** (Firebase MCP server optional), each optional
 - **Headless Chromium** for screenshots and browser tests
 - **tmux** with a simple menu, so nothing stops when you disconnect
 - **Key-only SSH** on port 2222

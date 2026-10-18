@@ -60,7 +60,8 @@ install_firebase() {
     echo "==> Installing/updating Firebase CLI (npm: firebase-tools)"
     npm install -g firebase-tools@latest || return 1
   fi
-  # Register the Firebase MCP server for Claude Code (user scope, once).
+  # Optionally register the Firebase MCP server for Claude Code (user scope, once).
+  [[ "${FIREBASE_MCP:-false}" == "true" ]] || return 0
   if command -v claude >/dev/null && ! claude mcp get firebase >/dev/null 2>&1; then
     echo "==> Registering Firebase MCP server in Claude Code"
     claude mcp add --scope user firebase -- firebase mcp
