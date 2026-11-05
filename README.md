@@ -26,6 +26,7 @@ For access from outside your home network, use [Tailscale](https://tailscale.com
 - **Claude Code** with [Remote Control](https://code.claude.com/docs/en/remote-control), always on and restarted automatically
 - **Codex CLI, GitHub CLI, Cloudflare Wrangler, Google Cloud CLI, Firebase CLI** (Firebase MCP server optional), each optional
 - **Headless Chromium** for screenshots and browser tests
+- **Optional KVM passthrough** so Claude can run the Android emulator and test apps
 - **tmux** with a simple menu, so nothing stops when you disconnect; windows and Claude conversations come back after a restart or update
 - **Key-only SSH** on port 2222
 
@@ -69,7 +70,7 @@ Optionally also `gh auth login` for private GitHub repositories. Then press `Ctr
 
 ## Learn more
 
-The [detailed guide](docs/guide.md) covers tool logins (Codex, Wrangler, gcloud, Firebase), the tmux menu and commands, running several instances, sharing a projects folder, browser testing, security notes and troubleshooting.
+The [detailed guide](docs/guide.md) covers tool logins (Codex, Wrangler, gcloud, Firebase), the tmux menu and commands, running several instances, sharing a projects folder, browser testing, the Android emulator, security notes and troubleshooting.
 
 ## License
 

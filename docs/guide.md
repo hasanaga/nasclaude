@@ -234,6 +234,7 @@ Notes:
 - `DATA_DIR/.home` holds your Claude, GitHub, Codex and other logins. Do not share it with other NAS users and do not include it in unencrypted backups.
 - Claude can run any command inside `/data` on request from your phone. It cannot see the rest of the NAS.
 - Use narrowly scoped tokens (for example fine-grained GitHub tokens).
+- With `compose.kvm.yaml` enabled, the container can start virtual machines through `/dev/kvm`. This gives no access to the NAS's files or processes, but it is an extra kernel interface; leave it off if you do not need the emulator.
 - Consider enabling **Require trusted devices** in your claude.ai account settings, so Remote Control sessions can only be viewed and steered from enrolled devices.
 - While Remote Control is connected, the conversation is stored on Anthropic's servers; code and files stay on the NAS.
 
@@ -249,9 +250,54 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH 
 - `shm_size: 1gb` in `compose.yaml` prevents crashes from Docker's small default `/dev/shm`.
 - Set `INSTALL_CHROMIUM=false` in `.env` and rebuild to leave it out (saves about 350 MB).
 
+## Android emulator (optional, KVM)
+The Android emulator needs hardware virtualization (KVM). Docker does not pass host devices into a container by default, so without this step the emulator stops with `/dev/kvm is not found`. Tested on x86_64 (Intel VT-x); the CPU must support VT-x or AMD-V and it must be enabled in the BIOS.
+
+1. On the NAS (port 22), check that KVM exists and note its group id (the number before `10, 232`):
+   ```bash
+   ls -ln /dev/kvm
+   ```
+   ```
+   crw-rw---- 1 0 104 10, 232 Nov  2 20:02 /dev/kvm
+   ```
+   If the file does not exist, the `kvm_intel` / `kvm_amd` kernel module is not loaded; on some NAS systems it is only loaded once their virtual machine app is installed.
+2. In `.env`, uncomment and fill in:
+   ```
+   COMPOSE_FILE=compose.yaml:compose.kvm.yaml
+   KVM_GID=104
+   ```
+3. Recreate the container:
+   ```bash
+   docker compose up -d
+   ```
+4. Inside the container, `ls -l /dev/kvm` should show the device and `id` should list the group.
+
+`compose.kvm.yaml` only adds the device and the group. No capabilities are granted and the read-only filesystem stays, so nothing changes for the rest of the NAS.
+
+The Android SDK and emulator are not part of the image: install them into `/data` (for example `/data/workspace/.toolchain`), so they survive rebuilds. The easiest way is to ask Claude to set up the Android SDK and an emulator. By hand, with Java 17+ and the Android command-line tools on `PATH`:
+```bash
+sdkmanager "platform-tools" "emulator" "system-images;android-35;google_apis;x86_64"
+```
+```bash
+avdmanager create avd -n test -k "system-images;android-35;google_apis;x86_64" -d pixel_6
+```
+Start it headless (there is no display or GPU in the container) and wait until it has booted:
+```bash
+emulator -avd test -no-window -no-audio -gpu swiftshader_indirect &
+```
+```bash
+adb wait-for-device shell 'while [ "$(getprop sys.boot_completed)" != 1 ]; do sleep 2; done'
+```
+Then use `adb install app.apk`, `adb exec-out screencap -p > screen.png` and `adb shell input tap X Y`.
+- Set `ANDROID_AVD_HOME` if `ANDROID_USER_HOME` is not the default; otherwise `emulator -list-avds` does not find the AVD.
+- Rendering runs on the CPU (SwiftShader). Give the container enough memory: an emulator uses about 2–4 GB.
+
 ## Troubleshooting
 - **`ERROR: cannot write to /data ...` or `mkdir: cannot create directory '/data'`:** usually a wrong `PGID` in `.env`. Check with `id` on the NAS (on UGOS usually `PGID=10`), then run `docker compose up -d --build`. If that does not help, check the folder's owner and permissions.
 - **SSH `Permission denied (publickey)`:** check the key in `.env`, then recreate the container with `docker compose up -d`. Keys are added to `DATA_DIR/.home/.ssh/authorized_keys`. When connecting with OpenSSH, pass the right key with `-i`.
 - **Remote Control `must be logged in`:** run `claude auth login` (step 5). Tokens from `claude setup-token` cannot start Remote Control.
 - **`ANTHROPIC_API_KEY is set`:** remove the variable; Remote Control needs a subscription login.
 - **Server stops after a ~10 minute network outage:** expected in server mode; `rc-loop.sh` restarts it automatically.
+- **Emulator: `/dev/kvm is not found`:** `COMPOSE_FILE` is not set in `.env`, or the container was not recreated after setting it (`docker compose up -d`).
+- **Emulator: `/dev/kvm` exists but `permission denied`:** `KVM_GID` does not match the group id from `ls -ln /dev/kvm` on the NAS.
+- **`error while interpolating ... set KVM_GID in .env`:** `compose.kvm.yaml` is enabled but `KVM_GID` is empty.

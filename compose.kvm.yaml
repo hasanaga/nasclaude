@@ -1,0 +1,12 @@
+# Optional: pass the host's KVM device into the container, for the Android emulator or
+# any other hardware-accelerated VM. Enable it in .env:
+#   COMPOSE_FILE=compose.yaml:compose.kvm.yaml
+#   KVM_GID=<group id of /dev/kvm, from `ls -ln /dev/kvm` on the NAS>
+# Only the device is added; no capabilities are granted and the hardening in
+# compose.yaml stays in place. The container fails to start if /dev/kvm does not exist.
+services:
+  agent:
+    devices:
+      - /dev/kvm:/dev/kvm
+    group_add:
+      - "${KVM_GID:?set KVM_GID in .env (group id from ls -ln /dev/kvm on the NAS)}"
